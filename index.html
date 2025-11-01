@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+  <meta charset="UTF-8">
+  <title>Fanoron-tsivy</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0092FF;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    .svg-wrapper {
+      width: 90vw;
+      max-height: 90vh;
+      aspect-ratio: 10 / 5;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .grid-line {
+      stroke: #333;
+      stroke-width: 2;
+    }
+
+    .oblique-line {
+      stroke: black;
+      stroke-width: 2;
+    }
+
+    .label {
+      font-size: 10px;
+      fill: #000;
+      font-family: sans-serif;
+      dominant-baseline: middle;
+    }
+
+    .col-label {
+      text-anchor: middle;
+    }
+
+    .row-label {
+      text-anchor: end;
+    }
+
+    .close-button {
+      position: absolute;
+      left: 10px;
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transition: background-color 0.3s;
+    }
+
+    .close-button:hover {
+      background-color: #a00000;
+    }
+    
+    .stone {
+      stroke-width: 2;
+      stroke: none;
+      transition: transform 0.2s ease;
+    }
+
+    .stone.can-move {
+      stroke: orange;
+    }
+
+    .stone.selected {
+       stroke: limegreen;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="close-button" id="stop-Btn">×</button>
+
+  <div class="svg-wrapper" id="wrapper">
+    <svg id="grille" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+<script>
+// === Famaritana fototra ===
+const cols = 8;  
+const rows = 4;  
+const size = 50;  
+  
+const width = cols * size;  
+const height = rows * size;  
+  
+const svg = document.getElementById('grille');  
+svg.setAttribute('viewBox', `-40 -40 ${width + 60} ${height + 60}`);  
+  
+const noOblique = new Set([  
+  'A2','A4','A6','A8',  
+  'B1','B3','B5','B7','B9',  
+  'C2','C4','C6','C8',  
+  'D1','D3','D5','D7','D9',
+  'E2','E4','E6','E8'
+]);  
+  
+const C2XY = c => ({x:(+c.slice(1)-1)*size, y:(c.charCodeAt(0)-65)*size});  
+const XY2C = (x,y)=>String.fromCharCode(65+Math.round(y/size))+(Math.round(x/size)+1);  
+const dirVec = (from,to)=>({dr: to.charCodeAt(0)-from.charCodeAt(0), dc: (+to.slice(1))- (+from.slice(1))});  
+const sameDir = (d1,d2)=> d1 && d2 && d1.dr===d2.dr && d1.dc===d2.dc;  
+const adjacent = (c1,c2)=>{  
+  const r1=c1.charCodeAt(0), c1n=+c1.slice(1);  
+  const r2=c2.charCodeAt(0), c2n=+c2.slice(1);  
+  const rd=Math.abs(r1-r2),  cd=Math.abs(c1n-c2n);  
+  if(rd===1 && cd===1 && (noOblique.has(c1)||noOblique.has(c2))) return false;  
+  return rd<=1 && cd<=1 && !(rd===0 && cd===0);  
+};  
+const inside = (r,c)=> r>=65 && r<=69 && c>=1 && c<=9;  
+  
+const lineVictims = (start, dir, myColor)=>{  
+  let r = start.charCodeAt(0) + dir.dr;  
+  let c = +start.slice(1)    + dir.dc;  
+  const victims = [];  
+  while(inside(r,c)){  
+    const target = String.fromCharCode(r)+c;  
+    const stone = [...svg.querySelectorAll('circle.stone')]  
+                    .find(k=>k.dataset.cell===target);  
+    if(!stone) break;  
+    if(stone.getAttribute('fill') === myColor) break;  
+    victims.push(stone);  
+    r += dir.dr; c += dir.dc;  
+  }  
+  return victims;  
+};  
+  
+const removeStones = stones => stones.forEach(s=>s.remove());  
+  
+for(let i=0;i<=rows;i++){  
+  const y=i*size;  
+  svg.insertAdjacentHTML('beforeend',`<line x1="0" y1="${y}" x2="${width}" y2="${y}" class="grid-line"/>`);  
+}  
+for(let j=0;j<=cols;j++){  
+  const x=j*size;  
+  svg.insertAdjacentHTML('beforeend',`<line x1="${x}" y1="0" x2="${x}" y2="${height}" class="grid-line"/>`);  
+}  
+['C1','E3','A1','E5','A3','E7','A5','E9','A7','C9',  
+ 'A3','C1','A5','E1','A7','E3','A9','E5','C9','E7']  
+ .forEach((_,i,a)=>i%2===0&&svg.insertAdjacentHTML('beforeend',(()=>{  
+    const s=C2XY(a[i]), e=C2XY(a[i+1]);  
+    return `<line x1="${s.x}" y1="${s.y}" x2="${e.x}" y2="${e.y}" class="oblique-line"/>`;})()));  
+['A','B','C','D','E'].forEach((r,i)=>  
+  svg.insertAdjacentHTML('beforeend',`<text x="-18" y="${i*size}" class="label row-label">${r}</text>`));  
+for(let j=0;j<=cols;j++)  
+  svg.insertAdjacentHTML('beforeend',`<text x="${j*size}" y="-18" class="label col-label">${j+1}</text>`);  
+  
+let sel = null;  
+let marks = [];  
+let choiceMarks = [];  
+let pendingChoice = null;  
+  
+let currentPlayer = 'white';  
+let movedThisTurn = false;  
+let freeMoveMode = false;  
+  
+const clearMarks = ()=>{ marks.forEach(m=>m.remove()); marks=[]; };  
+const clearChoice = ()=>{  
+  choiceMarks.forEach(m=>m.remove());  
+  choiceMarks=[];  
+  pendingChoice=null;  
+};  
+  
+const canCapture = (stone) => {  
+  const cell = stone.dataset.cell;  
+  const myColor = stone.getAttribute('fill');  
+  const baseR = cell.charCodeAt(0), baseC = +cell.slice(1);  
+  
+  for (let dr = -1; dr <= 1; dr++) {  
+    for (let dc = -1; dc <= 1; dc++) {  
+      if (!dr && !dc) continue;  
+  
+      const r = baseR + dr, c = baseC + dc;  
+      if (!inside(r, c)) continue;  
+  
+      const target = String.fromCharCode(r) + c;  
+      if (noOblique.has(cell) || noOblique.has(target))  
+        if (Math.abs(dr) === 1 && Math.abs(dc) === 1) continue;  
+  
+      const occupied = [...svg.querySelectorAll('circle.stone')]  
+        .some(k => k.dataset.cell === target);  
+      if (occupied) continue;  
+  
+      const dir = { dr, dc };  
+      const victimsA = lineVictims(target, dir, myColor);  
+      const victimsW = lineVictims(cell, { dr: -dr, dc: -dc }, myColor);  
+  
+      if (victimsA.length > 0 || victimsW.length > 0) {  
+        return true;  
+      }  
+    }  
+  }  
+  return false;  
+};  
+  
+const checkAllCaptures = (color) => {  
+  return [...svg.querySelectorAll('circle.stone')]  
+    .filter(s => s.getAttribute('fill') === color)  
+    .some(s => canCapture(s));  
+};  
+  
+const switchTurn = () => {  
+  currentPlayer = (currentPlayer === 'white') ? 'black' : 'white';  
+  movedThisTurn = false;  
+  freeMoveMode = false;  
+  
+  [...svg.querySelectorAll('circle.stone')].forEach(s => {  
+    s.classList.remove('free-move');  
+  });  
+  
+  const anyCapture = checkAllCaptures(currentPlayer);  
+  
+  if (!anyCapture) {
+  [...svg.querySelectorAll('circle.stone')]
+  .filter(s => s.getAttribute('fill') === currentPlayer)
+    .forEach(s => s.classList.add('free-move'));
+  freeMoveMode = true;
+}
+
+highlightMovableStones(); // 👈 highlight possible moves
+};  
+  
+const showChoice = (approachVictims, withdrawalVictims, dirA, dirW) => {
+  clearMarks();  
+  
+  const markSide = (stone, tag) => {  
+    stone.classList.add('candidate');  
+    stone.setAttribute('fill-opacity', '0.6');  
+  
+    const { x, y } = C2XY(stone.dataset.cell);  
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');  
+    g.setAttribute('class', 'choiceMark');  
+    g.dataset.tag = tag;  
+    g.insertAdjacentHTML('beforeend',  
+      `<circle r="12" fill="transparent" stroke="none" transform="translate(${x} ${y})"></circle>  
+       <text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-size="18" font-weight="bold" fill="red">×</text>`);  
+    svg.appendChild(g);  
+    choiceMarks.push(g);  
+  
+    g.addEventListener('click', e => {  
+      e.stopPropagation();  
+      if (tag === 'approach') removeStones(approachVictims);  
+      else removeStones(withdrawalVictims);  
+      clearChoice();  
+      removeCandidateStyles([...approachVictims, ...withdrawalVictims]);  
+  
+      // Manamarina hoe mbola misy sel vao miantso hintMoves
+      if (sel) {
+        hintMoves(sel.dataset.cell);  
+      }
+    });  
+  };  
+  
+  const removeCandidateStyles = arr => {  
+    arr.forEach(s => {  
+      s.classList.remove('candidate');  
+      s.removeAttribute('fill-opacity');  
+    });  
+  };  
+  
+  markSide(approachVictims[0], 'approach');  
+  markSide(withdrawalVictims[0], 'withdrawal');  
+};  
+  
+const hintMoves = (cell) => {  
+  // Manamarina hoe mbola misy sel
+  if (!sel) return;
+  
+  clearMarks();  
+  const baseR = cell.charCodeAt(0), baseC = +cell.slice(1);  
+  
+  let foundMove = false;  
+  
+  [-1,0,1].forEach(dr => {  
+    [-1,0,1].forEach(dc => {  
+      if(!dr && !dc) return;  
+      const r = baseR + dr, c = baseC + dc;  
+      if(!inside(r,c)) return;  
+      const target = String.fromCharCode(r) + c;  
+  
+      if(noOblique.has(cell) || noOblique.has(target))  
+        if(Math.abs(dr) === 1 && Math.abs(dc) === 1) return;  
+  
+      const occupied = [...svg.querySelectorAll('circle.stone')]  
+                         .some(k => k.dataset.cell === target);  
+      const visited  = sel.visited && sel.visited.has(target);  
+      const nextDir  = { dr, dc };  
+  
+      if(!occupied && !visited && adjacent(cell, target) && !sameDir(sel.lastDir, nextDir)) {  
+        const myColor = sel.getAttribute('fill');  
+        const victimsA = lineVictims(target, nextDir, myColor);  
+        const victimsW = lineVictims(cell, { dr: -dr, dc: -dc }, myColor);  
+  
+        if (victimsA.length > 0 || victimsW.length > 0 || sel.classList.contains('free-move')) {  
+          const { x, y } = C2XY(target);  
+          const m = document.createElementNS('http://www.w3.org/2000/svg', 'circle');  
+          m.setAttribute('r', 5);  
+          m.setAttribute('fill', 'yellow');  
+          m.setAttribute('transform', `translate(${x} ${y})`);  
+          svg.appendChild(m);  
+          marks.push(m);  
+          foundMove = true;  
+        }  
+      }  
+    });  
+  });  
+  
+  if (!foundMove && !pendingChoice) {  
+    if(sel){ 
+      sel.classList.remove('selected'); 
+      sel=null; 
+    }  
+    clearMarks();  
+    switchTurn();  
+  }  
+};  
+  
+const enableStone = c => {
+  c.classList.add('stone');
+  c.addEventListener('click', e => {
+    e.stopPropagation();
+    if (pendingChoice) return;
+    if (c.getAttribute('fill') !== currentPlayer) return;
+    if (movedThisTurn && sel && c !== sel) return;
+    
+    const mustCapture = checkAllCaptures(currentPlayer);
+    const thisCanCapture = canCapture(c);
+    if (mustCapture && !thisCanCapture) {
+      return;
+    }
+    
+    if (sel) {
+      sel.classList.remove('selected');
+      clearMarks();
+    }
+    
+    sel = c;
+    sel.classList.add('selected');
+    
+    if (!movedThisTurn || sel !== c) {
+      sel.visited = new Set([sel.dataset.cell]);
+      sel.lastDir = null;
+      movedThisTurn = false;
+    }
+    hintMoves(sel.dataset.cell);
+  });
+};
+  
+svg.addEventListener('click', e=>{  
+  if(!sel || pendingChoice) return;  
+  
+  const pt = svg.createSVGPoint();  
+  pt.x = e.clientX; pt.y = e.clientY;  
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());  
+  const x = Math.round(p.x/size)*size;  
+  const y = Math.round(p.y/size)*size;  
+  const newCell = XY2C(x,y);  
+  const newDir  = dirVec(sel.dataset.cell,newCell);  
+  const origin  = sel.dataset.cell;  
+  
+  if(sel.visited && sel.visited.has(newCell)) return;  
+  if(!adjacent(origin,newCell)) return;  
+  if(sameDir(sel.lastDir,newDir)) return;  
+  if([...svg.querySelectorAll('circle.stone')]  
+        .some(c=>c!==sel && c.dataset.cell===newCell)) return;  
+  
+  const myColor = sel.getAttribute('fill');  
+  const approachVictims   = lineVictims(newCell, newDir, myColor);  
+  const withdrawalVictims = lineVictims(origin, {dr:-newDir.dr, dc:-newDir.dc}, myColor);  
+  
+  if(approachVictims.length === 0 && withdrawalVictims.length === 0 && !sel.classList.contains('free-move')) return;  
+  
+  if(freeMoveMode && movedThisTurn) return;  
+  
+  sel.setAttribute('transform', `translate(${x} ${y})`);
+  sel.dataset.cell = newCell;
+
+  clearMarks();
+  [...svg.querySelectorAll('circle.stone')].forEach(s => s.classList.remove('can-move'));
+
+  if (!sel.visited) sel.visited = new Set();
+  sel.visited.add(newCell);
+  sel.lastDir = newDir;
+  movedThisTurn = true;
+  
+  if(freeMoveMode){
+    sel.classList.remove('free-move');  
+    freeMoveMode = false;  
+    sel.classList.remove('selected');  
+    sel = null;  
+    clearMarks();  
+    switchTurn();  
+    return;  
+  }  
+  
+  if(approachVictims.length && withdrawalVictims.length){  
+    pendingChoice={approachVictims,withdrawalVictims};  
+    showChoice(approachVictims, withdrawalVictims, newDir, {dr:-newDir.dr,dc:-newDir.dc});  
+  }else{  
+    if(approachVictims.length)   removeStones(approachVictims);  
+    if(withdrawalVictims.length) removeStones(withdrawalVictims);  
+    hintMoves(newCell);  
+  }  
+});  
+  
+document.getElementById('stop-Btn').addEventListener('click', () => {
+  if (sel && !pendingChoice) {
+    sel.classList.remove('selected');
+    sel = null;
+    clearMarks();
+    
+    if (movedThisTurn) {
+      switchTurn();
+    }
+  }
+});
+
+const highlightMovableStones = () => {
+  [...svg.querySelectorAll('circle.stone')].forEach(s => s.classList.remove('can-move'));
+  
+  const all = [...svg.querySelectorAll('circle.stone')]
+    .filter(s => s.getAttribute('fill') === currentPlayer);
+  
+  const mustCapture = checkAllCaptures(currentPlayer);
+  
+  all.forEach(s => {
+    if (mustCapture) {
+      if (canCapture(s)) {
+        s.classList.add('can-move');
+      }
+    } else {
+      s.classList.add('can-move');
+    }
+  });
+};
+  
+const whites=[  
+  'A1','A2','A3','A4','A5','A6','A7','A8','A9',  
+  'B1','B2','B3','B4','B5','B6','B7','B8','B9',  
+  'C2','C4','C7','C9'  
+];  
+const blacks=[  
+  'C1','C3','C6','C8',  
+  'D1','D2','D3','D4','D5','D6','D7','D8','D9',  
+  'E1','E2','E3','E4','E5','E6','E7','E8','E9'  
+];  
+const draw=(cell,color)=>{  
+  const {x,y}=C2XY(cell);  
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');  
+  c.setAttribute('r',10);  
+  c.setAttribute('fill',color);  
+  c.setAttribute('transform',`translate(${x} ${y})`);  
+  c.dataset.cell=cell;  
+  c.visited=new Set([cell]);  
+  c.lastDir=null;  
+  enableStone(c);  
+  svg.appendChild(c);  
+};
+
+whites.forEach(s => draw(s, 'white'));
+blacks.forEach(s => draw(s, 'black'));
+
+highlightMovableStones(); 
+</script>
+</body>
+</html>
