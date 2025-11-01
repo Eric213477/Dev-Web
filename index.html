@@ -116,9 +116,9 @@
     .main-content {
       padding-top: 100px;
       padding-bottom: 60px;
-      padding-left: 24px;
-      padding-right: 24px;
-      max-width: 800px;
+      padding-left: 30px;
+      padding-right: 30px;
+      max-width: 100%;
       margin: 0 auto;
       height: 99.9vh;
       overflow: hidden;
@@ -486,9 +486,12 @@
     
     /* Afeno ny mobile-nav rehefa lehibe ny écran */
     @media (min-width: 769px) {
-        
+        .mobile-nav {
+            /* Manafoana tanteraka ny element, ka tsy hanana toerana intsony */
+            display: none; 
         }
     }
+
   </style>
   
   <style>
