@@ -8,44 +8,32 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Mampiasa ny API an'ny Unipin (izay manohana server maro ao anatin'izany ny MENA)
-        // Ny 'app_id' sy 'token' eto dia ohatra amin'ny fomba fiasan'ny API-n'izy ireo
-        const response = await axios.post('https://www.unipin.com/th/services/get-player-name', 
-        `platform=free_fire&user_id=${uid}`, 
-        {
+        // Mampiasa ny API an'ny Kashishop (Tena mandeha amin'ny MENA)
+        const response = await axios.post('https://www.kashishop.com/api/v1/game/validate', {
+            "game_id": "freefire",
+            "user_id": uid
+        }, {
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Referer': 'https://www.unipin.com/th/free-fire'
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36'
             }
         });
 
-        // Ny Unipin dia mamerina anarana na dia any amin'ny server MENA aza indraindray
-        if (response.data && response.data.nickname) {
+        if (response.data && response.data.data && response.data.data.username) {
             return res.status(200).json({
                 success: true,
-                nickname: response.data.nickname
+                nickname: response.data.data.username
             });
         } else {
-            // Raha tsy mandeha ny Unipin, ity misy fomba faharoa (Alternative API)
-            // Misy API hafa antsoina hoe 'Smile.one' izay matanjaka amin'ny MENA
-            const smileRes = await axios.post('https://www.smile.one/th/services/getrole', 
-            `game=freefire&uid=${uid}`, 
-            {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-
-            if (smileRes.data && smileRes.data.username) {
-                return res.status(200).json({
-                    success: true,
-                    nickname: smileRes.data.username
-                });
-            }
-
-            return res.status(404).json({ error: "Tsy hita ilay UID" });
+            return res.status(404).json({ success: false, error: "UID tsy hita." });
         }
 
     } catch (error) {
-        return res.status(500).json({ error: "Nisy olana teknika. Andramo indray." });
+        // Raha misy error dia aseho eto ny antony (Debugging)
+        console.error(error);
+        return res.status(500).json({ 
+            success: false, 
+            error: "Server Error: Hamarino raha efa nanao 'npm install axios' ianao." 
+        });
     }
 };
