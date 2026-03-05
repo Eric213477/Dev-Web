@@ -3,39 +3,44 @@ module.exports = async (req, res) => {
     if (!uid) return res.status(400).json({ success: false, error: "Mila UID!" });
 
     try {
-        // Robot automatique miditra ao amin'ny Shop2Game MENA ofisialy
-        const response = await fetch('https://shop2game.com/api/auth/player_id_login', {
-            method: 'POST',
+        // Miantso ny API an'ny MTCGAME (izay mampiasa server Garena MENA)
+        const response = await fetch("https://www.mtcgame.com/api/v1/game/validate", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+                "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0"
             },
             body: JSON.stringify({
-                "app_id": 100067,
-                "login_id": uid,
-                "app_server_id": 0
+                "gameId": "free-fire",
+                "userId": uid
             })
         });
 
         const data = await response.json();
 
-        // Raha mahomby dia mivoaka ny nickname toy ny hita ao amin'ny Shop2Game
+        // Raha mahita ny anarana ny robot
         if (data && data.nickname) {
             return res.status(200).json({
                 success: true,
                 nickname: data.nickname
             });
-        } else {
-            return res.status(404).json({
-                success: false, 
-                error: "Tsy hita ao amin'ny Shop2Game MENA io UID io."
-            });
-        }
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            error: "Server Error: Voasakan'ny Garena ny fifandraisana."
+        } 
+        
+        // Raha tsy hita (Alternative: Smile.one)
+        const altRes = await fetch("https://www.smile.one/api/v1/game/validate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ "game": "freefire", "uid": uid })
         });
+        const altData = await altRes.json();
+
+        if (altData && altData.username) {
+            return res.status(200).json({ success: true, nickname: altData.username });
+        }
+
+        return res.status(404).json({ success: false, error: "Tsy hita ao amin'ny server MENA io UID io." });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, error: "Nisy olana teknika. Andramo indray." });
     }
 };
