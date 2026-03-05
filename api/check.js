@@ -3,14 +3,15 @@ module.exports = async (req, res) => {
     if (!uid) return res.status(400).json({ success: false, error: "Mila UID!" });
 
     try {
-        // Ny robot-nao dia manontany ny API an'ny Click-Diams
-        // Ampiasaina ny rafitra validate an'ny Firebase ampiasainy
+        // Ny robot-nao dia manao "POST request" any amin'ny API an'ny Click-Diams
         const response = await fetch("https://click-diams.vercel.app/api/validate", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0",
-                "Referer": "https://click-diams.vercel.app/"
+                "Referer": "https://click-diams.vercel.app/",
+                "Origin": "https://click-diams.vercel.app"
             },
             body: JSON.stringify({
                 "uid": uid,
@@ -18,35 +19,29 @@ module.exports = async (req, res) => {
             })
         });
 
-        // Raha tsy mandeha mivantana ny /api/validate, 
-        // dia mampiasa ny fomba fiasa faharoa (Internal Firebase)
         const data = await response.json();
 
-        if (data && (data.nickname || data.username)) {
+        // Raha mahita ny anarana ao amin'ny Click-Diams ny robot
+        if (data && (data.nickname || data.username || data.name)) {
             return res.status(200).json({
                 success: true,
-                nickname: data.nickname || data.username
+                nickname: data.nickname || data.username || data.name
             });
         } else {
+            // Backup: Raha tsy mamaly ny Click-Diams, manandrana ny API iraisam-pirenena
+            const backup = await fetch(`https://freefire-api-six.vercel.app/api/v1/info?id=${uid}`);
+            const backupData = await backup.json();
+            
+            if (backupData && backupData.nickname) {
+                return res.status(200).json({ success: true, nickname: backupData.nickname });
+            }
+
             return res.status(404).json({
                 success: false,
-                error: "Tsy afaka naka anarana tao amin'ny Click-Diams."
+                error: "Tsy nahazo valiny avy amin'ny Click-Diams."
             });
         }
     } catch (error) {
-        // Raha sendra misy sakana ny Click-Diams, dia miverina amin'ny Smile.one
-        try {
-            const backup = await fetch("https://www.smile.one/api/v1/game/validate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ "game": "freefire", "uid": uid })
-            });
-            const backupData = await backup.json();
-            if (backupData.username) {
-                return res.status(200).json({ success: true, nickname: backupData.username });
-            }
-        } catch (e) {}
-
         return res.status(500).json({
             success: false,
             error: "Server Error: Tsy afaka nifandray tamin'ny tetezana."
