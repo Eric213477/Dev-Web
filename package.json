@@ -1,5 +1,5 @@
 {
-  "name": "ff-name-finder",
+  "name": "ff-id-finder",
   "version": "1.0.0",
   "dependencies": {
     "axios": "^1.6.0"
