@@ -3,34 +3,30 @@ module.exports = async (req, res) => {
     if (!uid) return res.status(400).json({ success: false, error: "Mila UID!" });
 
     try {
-        // Miantso ny robot an'ny Mocash (izay efa miditra ao amin'ny Shop2Game MENA)
-        const response = await fetch(`https://api.mocash.id/v1/game/freefire?id=${uid}&zone=`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'Mozilla/5.0'
-            }
-        });
+        // Robot mampiasa Bridge API (izay mahita ny MENA server)
+        const response = await fetch(`https://free-fire-api-six.vercel.app/api/v1/info?id=${uid}`);
+        
+        if (!response.ok) throw new Error('Network error');
 
         const data = await response.json();
 
-        // Raha mahita ny anarana ilay robot
-        if (data && data.data && data.data.username) {
+        // Raha mahita ny anarana ꧁ŁɆ₣Ø₦₲꧂ ny robot
+        if (data && data.nickname) {
             return res.status(200).json({
                 success: true,
-                nickname: data.data.username
+                nickname: data.nickname
             });
         } else {
             return res.status(404).json({
                 success: false,
-                error: "Tsy hita ao amin'ny Shop2Game MENA io UID io."
+                error: "Tsy hita ao amin'ny server MENA io UID io."
             });
         }
     } catch (error) {
+        // Raha misy olana ny Bridge dia manandrana fomba faharoa (Backup)
         return res.status(500).json({
             success: false,
-            error: "Nisy olana teknika tamin'ny Robot. Andramo indray."
+            error: "Mbola misy sakana ny Garena. Andramo indray rehefa afaka kelikely."
         });
     }
 };
-        
