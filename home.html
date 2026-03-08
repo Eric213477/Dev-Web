@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tompon-daka - Home</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e3f2fd; text-align: center; padding: 20px; }
+    .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); display: inline-block; margin-top: 20px; min-width: 300px; }
+    input { padding: 12px; width: 250px; border: 2px solid #bbdefb; border-radius: 8px; margin-bottom: 10px; outline: none; }
+    input:focus { border-color: #2196f3; }
+    button { padding: 10px 20px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; margin: 5px; transition: 0.3s; }
+    button:active { transform: scale(0.95); }
+    #playBtn { background: #4caf50; color: white; width: 100%; margin-top: 10px; }
+    #searchBtn { background: #2196f3; color: white; }
+    
+    /* Modal Invitation */
+    #invitationModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: none; padding: 30px; border-radius: 15px; z-index: 1000; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+    
+    /* Animation Loko */
+    #selection-section { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+    #random-box { width: 150px; height: 150px; background: white; border-radius: 20px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+    #random-img { width: 110px; height: 110px; object-fit: contain; }
+    
+    .uid-display { color: #1976d2; font-family: monospace; font-size: 0.9em; background: #f0f4c3; padding: 2px 5px; border-radius: 4px; }
+    .status-badge { font-size: 0.8em; padding: 2px 8px; border-radius: 10px; margin-left: 5px; }
+    .online { background: #c8e6c9; color: #2e7d32; }
+    .offline { background: #ffcdd2; color: #c62828; }
+  </style>
+</head>
+<body>
+
+  <div id="selection-section">
+    <h2 id="selection-text">Mifidy loko ho anao...</h2>
+    <div id="random-box"><img id="random-img" src="button-red.png" alt="loko"></div>
+  </div>
+
+  <h1>🏆 Tompon-daka</h1>
+  
+  <div class="card">
+    <p>Mpikambana: <strong id="myName">Mampiditra...</strong></p>
+    <p>UID-nao: <span id="myUid" class="uid-display">...</span></p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+    
+    <p style="font-size: 0.9em; color: #666;">Hikaroka mpifanandrina:</p>
+    <input type="text" id="searchUid" placeholder="Ampidiro ny UID-ny">
+    <br>
+    <button id="searchBtn">Hikaroka</button>
+
+    <div id="resultArea" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 10px;">
+      <strong id="foundName"></strong> 
+      <span id="foundStatus" class="status-badge"></span><br>
+      <button id="playBtn">HANASA HILALAO</button>
+    </div>
+  </div>
+
+  <div id="invitationModal">
+    <p style="font-size: 1.2em;"><strong id="inviterName">...</strong> dia manasa anao!</p>
+    <button style="background:#4caf50; color:white;" id="acceptBtn">Hanaiky</button>
+    <button style="background:#f44336; color:white;" id="rejectBtn">Handa</button>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, get, set, child, onValue, update, remove, onDisconnect } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCf_AYMYMeLrKFAAchyyL4h46CJr49YDEU",
+      authDomain: "fanorona-6e2eb.firebaseapp.com",
+      projectId: "fanorona-6e2eb",
+      storageBucket: "fanorona-6e2eb.firebasestorage.app",
+      messagingSenderId: "853315152359",
+      appId: "1:853315152359:web:70e26104d4b992957eb542",
+      measurementId: "G-5VGT69TEYX",
+      databaseURL: "https://fanorona-6e2eb-default-rtdb.firebaseio.com" 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let myUID = "", myName = "";
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        myUID = user.uid; 
+        myName = user.displayName || "Mpilalao_" + myUID.substring(0,4);
+        
+        document.getElementById('myName').innerText = myName;
+        document.getElementById('myUid').innerText = myUID;
+
+        // 1. Amboarina ny mombamomba (Hita foana na offline aza)
+        const myUserRef = ref(db, 'users/' + myUID);
+        update(myUserRef, {
+          displayName: myName,
+          uid: myUID,
+          status: "online" // Rehefa manokatra pejy dia online
+        });
+
+        // 2. REHEFA MIVOAKA NY PEJY (Offline)
+        // Ity fampiasana onDisconnect ity dia miteny amin'ny Firebase hoe:
+        // "Raha vao tapaka ny internet-ko na hakatoko ny browser, ovay offline ny status-ko"
+        onDisconnect(myUserRef).update({
+          status: "offline"
+        });
+
+        listenForInvitations();
+      }
+    });
+
+    // Fikarohana olona (Hita foana na dia offline aza ny status-ny)
+    document.getElementById('searchBtn').onclick = async () => {
+      const id = document.getElementById('searchUid').value.trim();
+      
+      if(!id) return alert("Ampidiro ny UID!");
+      if(id === myUID) return alert("Tsy afaka mikaroka ny tenanao ianao!");
+
+      const snap = await get(child(ref(db), `users/${id}`));
+      
+      if (snap.exists()) {
+        const userData = snap.val();
+        document.getElementById('resultArea').style.display = "block";
+        document.getElementById('foundName').innerText = userData.displayName;
+        
+        const statusEl = document.getElementById('foundStatus');
+        statusEl.innerText = userData.status || "offline";
+        statusEl.className = "status-badge " + (userData.status === "online" ? "online" : "offline");
+
+        document.getElementById('playBtn').onclick = () => {
+          if(userData.status === "offline") {
+            alert("Offline io olona io, fa mbola afaka mandefa fanasana ihany ianao (mety tsy hahita izy izao).");
+          }
+          sendInvitation(id, userData.displayName);
+        };
+      } else {
+        document.getElementById('resultArea').style.display = "none";
+        alert("Tsy hita io UID io!");
+      }
+    };
+
+    async function sendInvitation(targetUID, targetName) {
+      const seed = Math.floor(Math.random() * 2);
+      const gID = myUID < targetUID ? myUID + "_" + targetUID : targetUID + "_" + myUID;
+      
+      await remove(ref(db, 'games/' + gID));
+      
+      await set(ref(db, 'invitations/' + targetUID), { 
+        fromUID: myUID, 
+        fromName: myName, 
+        status: "pending", 
+        colorSeed: seed, 
+        gId: gID 
+      });
+      
+      alert("Fanasana nalefa tany amin'i " + targetName);
+
+      const invStatusRef = ref(db, `invitations/${targetUID}/status`);
+      onValue(invStatusRef, (snap) => {
+        if (snap.val() === "accepted") {
+          const myColor = (seed === 0) ? "mena" : "maintso";
+          startSelectionAnimation(myColor, gID);
+        }
+      });
+    }
+
+    function listenForInvitations() {
+      onValue(ref(db, 'invitations/' + myUID), (snap) => {
+        const data = snap.val();
+        if (data && data.status === "pending") {
+          document.getElementById('invitationModal').style.display = "block";
+          document.getElementById('inviterName').innerText = data.fromName;
+          
+          document.getElementById('acceptBtn').onclick = async () => {
+            const myColor = (data.colorSeed === 0) ? "maintso" : "mena";
+            await update(ref(db, 'invitations/' + myUID), { status: "accepted" });
+            startSelectionAnimation(myColor, data.gId);
+          };
+
+          document.getElementById('rejectBtn').onclick = async () => {
+            await remove(ref(db, 'invitations/' + myUID));
+            document.getElementById('invitationModal').style.display = "none";
+          };
+        }
+      });
+    }
+
+    function startSelectionAnimation(color, gameID) {
+      document.getElementById('invitationModal').style.display = "none";
+      const section = document.getElementById('selection-section');
+      section.style.display = "flex";
+      
+      const img = document.getElementById('random-img');
+      let i = 0;
+      let timer = setInterval(() => { 
+        img.src = (i % 2 === 0) ? "button-red.png" : "button-green.png"; 
+        i++; 
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(timer);
+        img.src = (color === "mena") ? "button-red.png" : "button-green.png";
+        document.getElementById('selection-text').innerText = "LOKONAO: " + color.toUpperCase();
+        
+        setTimeout(() => {
+          window.location.href = `game.html?gameID=${gameID}&color=${color}`;
+        }, 2000);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
