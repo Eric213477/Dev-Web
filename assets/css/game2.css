@@ -1,0 +1,83 @@
+button, input, select, textarea {
+    background-color: transparent;
+    border: 1px solid WindowFrame;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    padding: .25em .375em
+}
+
+select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background: no-repeat 100%/1em;
+    border-radius: 0;
+    padding-right: 1em
+}
+
+select:not([multiple]):not([size]) {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='4'%3E%3Cpath d='M4 0h6L7 4'/%3E%3C/svg%3E")
+}
+
+body, html {
+    min-height: 100vh
+}
+
+html {
+    font-size: 62.5%
+}
+
+body {
+    background: #f7f7fc;
+    color: #43454a;
+    font-size: 1.4rem;
+    line-height: 1.5
+}
+
+p {
+    margin: 0 0 16px
+}
+
+img {
+    max-width: 100%
+}
+
+a {
+    color: #03a9f4;
+    text-decoration: none;
+}
+
+.navbar-default .navbar-toggle {
+    border-color: #FFF;
+}
+.navbar-default .navbar-toggle i {
+	color: #FFF;
+}
+
+.input_group {
+	margin: 10px auto 0px;
+    height: 45px;
+    font-size: 14px;
+    border: 1px solid #D5D5D5;
+    border-radius: 5px;
+	background: #FFF;
+}
+
+.footer {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background: #001D38;
+	text-align: center;
+}
+
+.footer .copy-right_text {
+    padding-bottom: 30px;
+}
+.footer .copy-right_text .copy_right {
+    font-size: 15px;
+    color: #AAB1B7;
+    margin-bottom: 0;
+    font-weight: 500;
+}
