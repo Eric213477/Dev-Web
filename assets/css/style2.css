@@ -1,0 +1,379 @@
+ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+a {
+  text-decoration: none;
+}
+
+body {
+  line-height: 24px;
+  font-size: 14px;
+  color: #6b6d6f;
+}
+
+body, p, h1, h2, h3, h4, h5, h6 {
+  margin: 0px;
+  padding: 0px;
+}
+
+.p_100 {
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+/* End Main Title css
+============================================================================================ */
+/* Left Title css
+============================================================================================ */
+
+.nine_title {
+  padding-bottom: 40px;
+}
+
+.nine_title h2 {
+  text-transform: uppercase;
+  font-size: 20px;
+  color: #272727;
+  font-family: "Heebo", sans-serif;
+  font-weight: bold;
+  letter-spacing: 6.2px;
+  position: relative;
+  display: inline-block;
+}
+
+.nine_title.center {
+  max-width: 710px;
+  margin: auto;
+}
+
+.single_title_n {
+  text-align: center;
+  padding-bottom: 95px;
+}
+
+.single_title_n h2 {
+  font-size: 30px;
+  text-transform: uppercase;
+  color: #272727;
+  font-family: "Heebo", sans-serif;
+  font-weight: bold;
+}
+
+/* End Main Header Area css
+============================================================================================ */
+/* Dashboard Menu css
+============================================================================================ */
+.dash_tp_menu_area {
+  position: absolute;
+  position: fixed;
+  left: 0p;
+  top: 0px;
+  width: 100%;
+  z-index: 22;
+  padding: 0px 55px 0px 55px;
+  background: #337ab7;
+}
+@media (max-width: 992px) {
+	.dash_tp_menu_area {
+		padding: 0px 15px 0px 15px;
+	}
+}
+
+.dash_tp_menu_area .navbar.navbar-default {
+  border: none;
+  border-radius: 0px;
+  margin-bottom: 0px;
+  background: transparent;
+}
+
+.dash_tp_menu_area .navbar.navbar-default .navbar-header .navbar-brand {
+  height: 82px;
+  padding: 0px;
+  line-height: 82px;
+}
+
+.dash_tp_menu_area .navbar.navbar-default .navbar-header .navbar-brand img {
+  display: inline-block;
+}
+
+.dash_tp_menu_area .navbar.navbar-default .navbar-collapse {
+  text-align: right;
+}
+
+.dash_tp_menu_area .navbar.navbar-default .nav.navbar-nav {
+  float: none;
+  display: inline-block;
+  text-align: right;
+  margin-top: 20px;
+}
+
+.dash_tp_menu_area .navbar.navbar-default .nav.navbar-nav li {
+  float: none;
+  display: inline-block;
+  margin-right: 5px;
+  border-radius: 5px;
+  padding: 0px 8px;
+  cursor: pointer;
+}
+
+.dash_tp_menu_area .navbar.navbar-default .nav.navbar-nav li a {
+  padding: 0px;
+  font-size: 16px;
+  font-family: "Heebo", sans-serif;
+  font-weight: 500;
+  letter-spacing: .32px;
+  color: #fff;
+  background: transparent;
+  display: block;
+  line-height: 42px;
+}
+
+.dash_tp_menu_area.nine_menu .navbar.navbar-default .nav.navbar-nav li a {
+  font-size: 16px;
+  /*text-transform: uppercase;*/
+  font-family: "Heebo", sans-serif;
+  /*font-weight: 300;*/
+  letter-spacing: .32px;
+}
+
+.dash_tp_menu_area.nine_menu .navbar.navbar-default .nav.navbar-nav li:last-child {
+  margin-right: 0px;
+}
+
+/* End Header Banner css
+============================================================================================ */
+/* Banner Nine css
+============================================================================================ */
+.banner_nine_area {
+  background: linear-gradient(180deg,#337ab76b 0%,#fc5a1a3b 100%);
+  background-size: cover;
+  padding-bottom: 30px;
+}
+.banner_nine_area .b_nine_text {
+  padding-top: 160px;
+}
+
+.banner_nine_area .b_nine_text h4 {
+  font-size: 35px;
+  color: #fff;
+  text-transform: uppercase;
+  font-family: "Heebo", sans-serif;
+}
+.banner_nine_area .b_nine_text p {
+	font-size: 16px;
+	line-height: 25px;
+	padding: 30px 0px 10px;
+	color: #555;
+	font-family: "Heebo", sans-serif;
+}
+.banner_nine_area .contact_us_form_nine .form-group {
+  margin-bottom: 15px;
+}
+
+.banner_nine_area .contact_us_form_nine .form-group input {
+  height: 50px;
+  border-radius: 5px;
+  background: #fff;
+  border-color: #d7d7d7;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  font-size: 16px;
+  color: #8e8e8e;
+  font-family: "Heebo", sans-serif;
+  padding: 0px 15px;
+}
+
+.banner_nine_area .contact_us_form_nine .form-group input::-webkit-input-placeholder {
+  font-size: 14px;
+  color: #8e8e8e;
+  font-family: "Heebo", sans-serif;
+}
+
+.banner_nine_area .b_nine_image {
+  text-align: center;
+  padding-top: 130px;
+}
+
+/* End About Screen Nine Area css
+============================================================================================ */
+/* Nine Product Feature Area css
+============================================================================================ */
+.product_feature_area {
+  padding-top: 120px;
+  padding-bottom: 100px;
+  background: #FFF;
+}
+
+.product_feature_area .nine_title {
+  padding-bottom: 120px;
+}
+
+.n_product_inner {
+  overflow: hidden;
+}
+
+.n_product_inner .n_product_item {
+  border: 1px solid #ebebeb;
+  padding: 35px 25px 45px 25px;
+  position: relative;
+  margin-top: 25px;
+  -webkit-box-shadow: 5px 8.66px 27px 0px rgba(0, 0, 0, 0.05);
+  box-shadow: 5px 8.66px 27px 0px rgba(0, 0, 0, 0.05);
+  min-height: 250px;
+}
+
+.n_product_inner .n_product_item .icon_box {
+  height: 65px;
+  width: 65px;
+  background: #eb484d;
+  background: #337ab7; /*fbtc*/
+  text-align: center;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  line-height: 62px;
+  border-bottom-right-radius: 4px;
+}
+.n_product_inner .n_product_item .icon_box img {
+	width: 45px;
+	margin: 10px;
+}
+.n_product_inner .n_product_item h4 {
+  padding-left: 55px;
+  padding-bottom: 25px;
+  font-size: 22px;
+  color: #272727;
+  font-family: "Heebo", sans-serif;
+}
+
+.n_product_inner .n_product_item p {
+  font-size: 16px;
+  line-height: 28px;
+  color: #8e8e8e;
+  font-family: "Heebo", sans-serif;
+}
+
+/* End Contact Question Area css
+============================================================================================ */
+/* End Contact Question Area css
+============================================================================================ */
+.get_form_nine_area {
+  background: #f8f8f8;
+  min-height: calc(100vh - 300px);
+}
+
+/* End Clients Logo Area css
+============================================================================================ */
+/* Clients Count Area css
+============================================================================================ */
+.clients_count_nine {
+  background: url(../img/clients-count-n.jpg) no-repeat scroll center center;
+  background: #337ab7;/*fbtc*/
+  background-size: cover;
+  padding: 100px 0px;
+  text-align: center;
+}
+
+.clients_count_nine .clients_count_inner .c_count_item h4 {
+  font-size: 35px;
+  font-family: "Heebo", sans-serif;
+  /*font-weight: bold;
+  color: #272727;*/
+  color: #FFF;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.clients_count_nine .clients_count_inner .c_count_item p {
+  color: #fff;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-family: "Heebo", sans-serif;
+  letter-spacing: 2.8px;
+}
+
+/* End Ten Footer Area css
+============================================================================================ */
+/*---------------------------------------------------- */
+.navbar-toggle {
+	margin-top: 20px !important;
+	margin-right: 5px !important;
+	padding: 10px 15px;
+	font-size: 17px;
+}
+.faq .panel {
+	border: none;
+	box-shadow: none;
+	background: none;
+}
+.faq .panel-group .panel {
+	margin-bottom: 10px;
+	padding: 0px!important;
+	text-align: left;
+}
+.faq .panel-title {
+	padding: 15px 0px !important;
+	font-size: 16px !important;
+	color: #333;
+	font-family: "Heebo", sans-serif !important;
+	font-weight: normal !important;
+	font-size: 16px;
+	margin-bottom: 0px;
+}
+.faq .panel-title a {
+	color: #333;
+}
+.faq .panel-default>.panel-heading {
+	background: #FFF;
+	border-radius: 4px;
+	box-shadow: 5px 8.66px 27px 0px rgba(0, 0, 0, 0.05);
+	border-left: 5px solid #3498db;
+}
+.faq .panel-default>.panel-heading+.panel-collapse>.panel-body {
+	border: none;
+	background: none;
+	font-size: 14px;
+	font-family: "Heebo", sans-serif !important;
+	line-height: 1.5;
+	font-style: italic;
+}
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+#main_logo {
+	height: 50px;
+}
+input {
+	/*-webkit-appearance: none;*/
+}
+@media (max-width: 1199px) {
+	.navbar-collapse.collapse {
+	  /* eto
+		display: none !important;
+		*/
+		overflow-x: visible;
+		padding-right: 15px;
+		padding-left: 15px;
+		border-top: 1px solid #e7e7e7 !important;
+		-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+		box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+		-webkit-overflow-scrolling: touch;
+	}
+	.navbar-toggle {
+		display: block !important;
+	}
+	.navbar-header {
+		float: none !important;
+	}
+	.dash_tp_menu_area {
+		padding: 0px 15px 0px 15px;
+	}
+	.navbar-nav {
+		margin: 7.5px -15px !important;
+	}
+}
